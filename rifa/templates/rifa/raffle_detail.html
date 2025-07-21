@@ -1,0 +1,32 @@
+{% extends 'rifa/base.html' %}
+{% block title %}Rifa #{{ raffle.id }}{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title">Descrição da Rifa</h5>
+    <p class="card-text">{{ raffle.description }}</p>
+
+    <h6 class="mt-4">Números disponíveis:</h6>
+    <div class="list-group">
+      {% for num in raffle.numbers.all %}
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>Número: {{ num.number }}</strong>
+          <span class="badge bg-{% if num.is_taken %}danger{% else %}success{% endif %} ms-3">
+            {% if num.is_taken %}Reservado{% else %}Livre{% endif %}
+          </span>
+        </div>
+        {% if not num.is_taken %}
+        <form action="{% url 'raffle-reserve' raffle.id num.id %}" method="post">
+          {% csrf_token %}
+          <button class="btn btn-primary">Reservar</button>
+        </form>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="list-group-item">Nenhum número encontrado.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

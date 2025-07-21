@@ -1,0 +1,24 @@
+{% extends 'rifa/base.html' %}
+{% load static %}
+
+{% block title %}Prêmios{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="background-color: #f2f2f2; min-height: 100vh;">
+    <h2 class="mb-4"> Prêmios - Escolha sua sorte</h2>
+    {% for rifa in rifas %}
+    <div class="card mb-4 shadow-sm" style="border-radius: 15px;">
+        {% if rifa.imagem %}
+        <img src="{{ rifa.imagem.url }}" class="card-img-top" style="border-top-left-radius: 15px; border-top-right-radius: 15px;">
+        {% endif %}
+        <div class="card-body">
+            <h5 class="card-title">{{ rifa.titulo }}</h5>
+            <p class="card-text text-muted">R$ {{ rifa.preco_por_numero }}</p>
+            <a href="{% url 'raffle-detail' rifa.id %}" class="btn btn-primary">Adquirir agora</a>
+        </div>
+    </div>
+    {% empty %}
+    <p>Nenhum bilhete premiado cadastrado ainda.</p>
+    {% endfor %}
+</div>
+{% endblock %}
