@@ -1,184 +1,147 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Rifa Online{% endblock %}</title>
+  <meta charset="UTF-8">
+  <title>{% block title %}Rifa Online{% endblock %}</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: #f4f4f4; margin: 0; }
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    .conteudo-centralizado {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
 
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
-    <style>
-        body {
-            background-color: #f4f4f4;
-            margin: 0;
-        }
-
-        /* Menu lateral */
-        .menu-lateral {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 280px;
-            height: 100vh;
-            background-color: #000;
-            color: white;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            z-index: 1050;
-            padding: 20px;
-        }
-
-        .menu-lateral.open {
-            transform: translateX(0);
-        }
-
-        .menu-lateral ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .menu-lateral li {
-            padding: 15px 0;
-            border-bottom: 1px solid #333;
-        }
-
-        .menu-lateral a {
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .menu-lateral .btn-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.8rem;
-            float: right;
-        }
-
-        /* Cabeçalho */
-        .navbar-custom {
-            background-color: #000;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navbar-custom .logo {
-            font-weight: bold;
-            font-size: 1.5rem;
-            color: #ffcc00;
-            letter-spacing: 1px;
-        }
-
-        .navbar-custom .icons {
-            display: flex;
-            gap: 20px;
-            font-size: 1.3rem;
-            cursor: pointer;
-            color: white;
-        }
-
-        .btn-entrar {
-            background-color: #0066ff;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 1rem;
-            margin-top: 20px;
-        }
-
-        .btn-entrar i {
-            margin-right: 8px;
-        }
-
-        .social-icons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
-            font-size: 1.2rem;
-        }
-
-        .social-icons a {
-            color: white;
-        }
-    </style>
+    .menu-lateral { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background-color: #000; color: white; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1050; padding: 20px; }
+    .menu-lateral.open { transform: translateX(0); }
+    .menu-lateral ul { list-style: none; padding: 0; }
+    .menu-lateral li { padding: 15px 0; border-bottom: 1px solid #333; }
+    .menu-lateral a { color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .menu-lateral .btn-close { background: none; border: none; color: white; font-size: 1.8rem; float: right; }
+    .navbar-custom { background-color: #000; color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .navbar-custom .logo { font-weight: bold; font-size: 1.5rem; color: #ffcc00; letter-spacing: 1px; }
+    .navbar-custom .icons { display: flex; gap: 20px; font-size: 1.3rem; cursor: pointer; color: white; }
+    .btn-entrar { background-color: #0066ff; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-size: 1rem; margin-top: 20px; }
+    .btn-entrar i { margin-right: 8px; }
+    .social-icons { display: flex; justify-content: center; gap: 20px; margin-top: 30px; font-size: 1.2rem; }
+    .social-icons a { color: white; }
+    .modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 99999; justify-content: center; align-items: center; }
+    .modal-container { background: #fff; max-width: 350px; padding: 2rem 1.5rem; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); position: relative; animation: zoomIn 0.3s ease; }
+    .close-modal { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.8rem; color: #333; cursor: pointer; }
+    @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  </style>
 </head>
 <body>
-
-<!-- Topo com logo e ícones -->
-<header class="navbar-custom">
+  <header class="navbar-custom">
     <div class="logo">VIPEBOOK</div>
     <div class="icons">
-        <i id="btn-menu" class="fas fa-bars"></i>
-        <i class="fas fa-shopping-cart"></i>
+      <i id="btn-menu" class="fas fa-bars"></i>
+      <i class="fas fa-shopping-cart"></i>
+      {% if user.is_authenticated %}
+        <div class="text-white ms-3">Olá, <strong>{{ user.username }}</strong></div>
+      {% endif %}
     </div>
-</header>
+  </header>
 
-<!-- Menu lateral -->
-<nav id="menu-lateral" class="menu-lateral">
-    <button id="btn-fechar-menu" class="btn-close"><i class="fas fa-times"></i></button>
-
-    <ul class="mt-4">
-        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Início</a></li>
-        <li><a href="#"><i class="fas fa-list"></i> Sorteios</a></li>
-        <li><a href="#"><i class="fas fa-hashtag"></i> Meus números</a></li>
-        <li><a href="#"><i class="fas fa-user-plus"></i> Cadastro</a></li>
-        <li><a href="#"><i class="fas fa-trophy"></i> Ganhadores</a></li>
-        <li><a href="#"><i class="fas fa-file-alt"></i> Termos de uso</a></li>
-        <li><a href="#"><i class="fas fa-envelope"></i> Entrar em contato</a></li>
+  <div id="menu-lateral" class="menu-lateral">
+    <button id="btn-fechar-menu" class="btn-close">&times;</button>
+    <ul>
+      <li><a href="{% url 'home' %}">🏠 Início</a></li>
+      <li><a href="#">🎟️ Sorteios</a></li>
+      <li><a href="#">🔢 Meus números</a></li>
+      <li><a href="{% url 'cadastro' %}">📝 Cadastro</a></li>
+      <li><a href="#">🏆 Ganhadores</a></li>
+      <li><a href="#">📄 Termos de uso</a></li>
+      <li><a href="#">📧 Entrar em contato</a></li>
     </ul>
-
-    <button class="btn-entrar"><i class="fas fa-sign-in-alt"></i>Entrar</button>
-
-    <div class="social-icons mt-4">
-        <a href="#"><i class="fab fa-facebook"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-        <a href="#"><i class="fab fa-whatsapp"></i></a>
+    {% if not user.is_authenticated %}
+    <a href="javascript:void(0);" id="btnLoginMenu" class="btn btn-primary w-100 mt-4 d-flex align-items-center justify-content-center">
+      <i class="fas fa-sign-in-alt me-2"></i> Entrar
+    </a>
+    {% endif %}
+    <div class="social-icons">
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="#"><i class="fab fa-whatsapp"></i></a>
     </div>
-</nav>
+  </div>
 
-<!-- Conteúdo principal -->
-<main class="container py-4">
+  <div id="loginModal" class="modal-backdrop">
+    <div class="modal-container">
+      <button class="close-modal" onclick="fecharModal()">×</button>
+      <h3 class="mb-3 text-center">Login</h3>
+      <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        <input type="text" name="username" class="form-control mb-2" placeholder="Telefone ou usuário" required>
+        <input type="password" name="password" class="form-control mb-2" placeholder="Senha" required>
+        <div class="mb-2 text-end">
+          <a href="{% url 'password_reset' %}" class="small">Esqueci minha senha</a>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 mb-2">Continuar</button>
+      </form>
+      <a href="{% url 'cadastro' %}" class="btn btn-link w-100">Criar conta</a>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL CENTRALIZADO -->
+  <main class="conteudo-centralizado py-4">
     {% block content %}{% endblock %}
-</main>
+  </main>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    const menu = document.getElementById('menu-lateral');
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const loginModal = document.getElementById("loginModal");
+    const btnLogin = document.getElementById("btnLogin");
+    const btnLoginMenu = document.getElementById("btnLoginMenu");
+    const menu = document.getElementById("menu-lateral");
     const btnOpen = document.getElementById('btn-menu');
     const btnClose = document.getElementById('btn-fechar-menu');
 
     btnOpen.addEventListener('click', () => {
-        menu.classList.add('open');
-        document.body.style.overflow = 'hidden';
+      menu.classList.add('open');
+      document.body.style.overflow = 'hidden';
     });
 
     btnClose.addEventListener('click', () => {
+      menu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (menu.classList.contains('open') && !menu.contains(e.target) && e.target !== btnOpen) {
         menu.classList.remove('open');
         document.body.style.overflow = '';
+      }
     });
 
-    // Fecha menu ao clicar fora dele
-    document.addEventListener('click', (e) => {
-        if (menu.classList.contains('open') && !menu.contains(e.target) && e.target !== btnOpen) {
-            menu.classList.remove('open');
-            document.body.style.overflow = '';
-        }
-    });
-</script>
+    if (btnLogin) {
+      btnLogin.addEventListener("click", () => {
+        loginModal.style.display = "flex";
+        document.body.style.overflow = 'hidden';
+      });
+    }
 
+    if (btnLoginMenu) {
+      btnLoginMenu.addEventListener("click", () => {
+        loginModal.style.display = "flex";
+        document.body.style.overflow = 'hidden';
+        if (menu) menu.classList.remove("open");
+      });
+    }
+
+    function fecharModal() {
+      loginModal.style.display = "none";
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        fecharModal();
+      }
+    });
+  </script>
 </body>
 </html>

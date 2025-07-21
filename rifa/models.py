@@ -15,6 +15,16 @@ class Rifa(models.Model):
     def __str__(self):
         return self.titulo
 
+from django.contrib.auth.models import User
+
+class NumeroRifa(models.Model):
+    numero = models.IntegerField()
+    rifa = models.ForeignKey('Rifa', on_delete=models.CASCADE)
+    reservado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    reservado_em = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.numero} - {self.rifa.titulo}"
 class Numero(models.Model):
     rifa = models.ForeignKey(Rifa, on_delete=models.CASCADE, related_name='numeros')
     numero = models.PositiveIntegerField()

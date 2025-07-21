@@ -1,0 +1,18 @@
+{% extends 'rifa/base.html' %}
+{% block content %}
+<h2 class="mb-4">Prêmios - Escolha sua sorte</h2>
+<div class="row">
+  {% for rifa in rifas %}
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm">
+        <img src="{{ rifa.imagem.url }}" class="card-img-top" alt="{{ rifa.titulo }}">
+        <div class="card-body">
+          <h5 class="card-title">{{ rifa.titulo }}</h5>
+          <p class="card-text">R$ {{ rifa.preco }}</p>
+          <a href="#" class="btn btn-primary">Adquirir agora</a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
