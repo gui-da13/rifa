@@ -1,0 +1,74 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+{% block content %}
+<div class="container-fluid">
+  <h2 class="mt-3 mb-4">Dashboard de Rifas</h2>
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-bg-success mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Rifas Ativas</h5>
+          <p class="card-text" style="font-size:2rem;">{{ rifas_ativas }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-danger mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Rifas Encerradas</h5>
+          <p class="card-text" style="font-size:2rem;">{{ rifas_encerradas }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-info mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Total de Bilhetes</h5>
+          <p class="card-text" style="font-size:2rem;">{{ total_bilhetes }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-warning mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Valor Total Vendido</h5>
+          <p class="card-text" style="font-size:2rem;">R$ {{ valor_total_vendido }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <canvas id="graficoRifas" height="80"></canvas>
+    </div>
+  </div>
+</div>
+
+{% json_script nomes_rifas "nomesRifas" %}
+{% json_script bilhetes_por_rifa "bilhetesPorRifa" %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+var nomesRifas = JSON.parse(document.getElementById('nomesRifas').textContent);
+var bilhetesPorRifa = JSON.parse(document.getElementById('bilhetesPorRifa').textContent);
+var ctx = document.getElementById('graficoRifas').getContext('2d');
+var grafico = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: nomesRifas,
+        datasets: [{
+            label: 'Bilhetes Vendidos',
+            data: bilhetesPorRifa,
+            backgroundColor: 'rgba(25, 135, 84, 0.7)',
+            borderColor: 'rgba(25, 135, 84, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+{{ block.super }}
+{% endblock %}

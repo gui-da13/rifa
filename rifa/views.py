@@ -1,3 +1,14 @@
+from .models import Rifa
+
+def sorteio_detail(request, id):
+    rifa = get_object_or_404(Rifa, id=id)
+    qtde_list = ['1', '2', '5', '10', '25', '50']
+    numeros_list = [str(i).zfill(6) for i in range(1, 21)]
+    return render(request, 'rifa/raffle_detail.html', {
+        'rifa': rifa,
+        'qtde_list': qtde_list,
+        'numeros_list': numeros_list
+    })
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.shortcuts import redirect
@@ -39,6 +50,24 @@ def home(request):
     return render(request, 'rifa/home.html', {'rifas': rifas, 'user': request.user})
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Rifa, Numero, NumeroRifa
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+def sorteios(request):
+    rifas = Rifa.objects.all()
+    return render(request, 'rifa/sorteios.html', {'rifas': rifas})
+
+# View para busca de números pelo telefone
+@csrf_exempt
+def buscar_numeros_por_telefone(request):
+    if request.method == 'POST':
+        telefone = request.POST.get('telefone')
+        numeros = Numero.objects.filter(comprador_telefone=telefone).values_list('numero', flat=True)
+        numeros = list(numeros)
+        if numeros:
+            return JsonResponse({'status': 'ok', 'numeros': numeros})
+        else:
+            return JsonResponse({'status': 'notfound'})
+    return JsonResponse({'status': 'error'})
 from django.contrib import messages
 
 @login_required

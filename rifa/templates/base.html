@@ -41,7 +41,15 @@
       <i id="btn-menu" class="fas fa-bars"></i>
       <i class="fas fa-shopping-cart"></i>
       {% if user.is_authenticated %}
-        <div class="text-white ms-3">Olá, <strong>{{ user.username }}</strong></div>
+        <div class="d-flex align-items-center ms-3 gap-2">
+          <span class="text-white">Olá, <strong>{{ user.username }}</strong></span>
+          <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-light btn-sm" style="border-radius: 20px; padding: 2px 16px; font-size: 0.95rem;">
+              <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+          </form>
+        </div>
       {% endif %}
     </div>
   </header>
@@ -73,7 +81,7 @@
     <div class="modal-container">
       <button class="close-modal" onclick="fecharModal()">×</button>
       <h3 class="mb-3 text-center">Login</h3>
-      <form method="POST" action="{% url 'login' %}">
+      <form method="POST" action="{% url 'login' %}?next={{ request.path }}">
         {% csrf_token %}
         <input type="text" name="username" class="form-control mb-2" placeholder="Telefone ou usuário" required>
         <input type="password" name="password" class="form-control mb-2" placeholder="Senha" required>

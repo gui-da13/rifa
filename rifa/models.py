@@ -11,6 +11,8 @@ class Rifa(models.Model):
     descricao = models.TextField(blank=True)
     preco = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     imagem = models.ImageField(upload_to='rifas/', blank=True, null=True)
+    encerrada = models.BooleanField(default=False, help_text='Marque como encerrada para tornar os bilhetes indisponíveis.')
+    data_encerramento = models.DateTimeField(null=True, blank=True, help_text='Data e hora de encerramento da rifa.')
 
     def __str__(self):
         return self.titulo
