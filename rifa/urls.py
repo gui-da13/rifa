@@ -11,4 +11,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('cadastro/', views.cadastro_view, name='cadastro'),
     path('buscar-numeros/', views.buscar_numeros_por_telefone, name='buscar_numeros'),
+    path('ganhadores/', views.ganhadores, name='ganhadores'),
+    path('meus-numeros/', views.meus_numeros, name='meus_numeros'),
+    path('buscar-pedidos/', views.buscar_pedidos, name='buscar_pedidos'),
 ]

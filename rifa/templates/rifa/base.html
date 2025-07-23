@@ -23,6 +23,26 @@
     .menu-lateral .btn-close { background: none; border: none; color: white; font-size: 1.8rem; float: right; }
     .navbar-custom { background-color: #000; color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
     .navbar-custom .logo { font-weight: bold; font-size: 1.5rem; color: #ffcc00; letter-spacing: 1px; }
+    .navbar-custom .logo {
+      font-weight: bold;
+      font-size: 2.2rem;
+      color: #ffcc00;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #222;
+      border-radius: 8px;
+      padding: 2px 18px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #222;
+      transition: box-shadow 0.2s, opacity 0.2s;
+      display: inline-block;
+    }
+    .logo-flash {
+      animation: flashLogo 1s infinite alternate;
+    }
+    @keyframes flashLogo {
+      0% { opacity: 1; text-shadow: 0 2px 8px #222; }
+      100% { opacity: 0.5; text-shadow: 0 0px 0px #222; }
+    }
     .navbar-custom .icons { display: flex; gap: 20px; font-size: 1.3rem; cursor: pointer; color: white; }
     .btn-entrar { background-color: #0066ff; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-size: 1rem; margin-top: 20px; }
     .btn-entrar i { margin-right: 8px; }
@@ -32,11 +52,37 @@
     .modal-container { background: #fff; max-width: 350px; padding: 2rem 1.5rem; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); position: relative; animation: zoomIn 0.3s ease; }
     .close-modal { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.8rem; color: #333; cursor: pointer; }
     @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes flashLogo {
+      0% { opacity: 1; text-shadow: 0 2px 8px #222; }
+      100% { opacity: 0.5; text-shadow: 0 0px 0px #222; }
+    }
   </style>
 </head>
 <body>
   <header class="navbar-custom">
-    <div class="logo">VIPEBOOK</div>
+    <a href="{% url 'home' %}" class="logo logo-flash" style="text-decoration:none;">
+      VIPEBOOK
+    </a>
+    .navbar-custom .logo {
+      font-weight: bold;
+      font-size: 2.2rem;
+      color: #ffcc00;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #222;
+      border-radius: 8px;
+      padding: 2px 18px;
+      cursor: pointer;
+      box-shadow: 0 2px 12px #222;
+      transition: box-shadow 0.2s, opacity 0.2s;
+      display: inline-block;
+    }
+    .logo-flash {
+      animation: flashLogo 1s infinite alternate;
+    }
+    @keyframes flashLogo {
+      0% { opacity: 1; text-shadow: 0 2px 8px #222; }
+      100% { opacity: 0.5; text-shadow: 0 0px 0px #222; }
+    }
     <div class="icons">
       <i id="btn-menu" class="fas fa-bars"></i>
       <i class="fas fa-shopping-cart"></i>
@@ -51,11 +97,9 @@
     <ul>
       <li><a href="{% url 'home' %}">🏠 Início</a></li>
       <li><a href="{% url 'sorteios' %}">🎟️ Sorteios</a></li>
-      <li><a href="#">🔢 Meus números</a></li>
+      <li><a href="{% url 'meus_numeros' %}">🔢 Meus números</a></li>
       <li><a href="{% url 'cadastro' %}">📝 Cadastro</a></li>
-      <li><a href="#">🏆 Ganhadores</a></li>
-      <li><a href="#">📄 Termos de uso</a></li>
-      <li><a href="#">📧 Entrar em contato</a></li>
+      <li><a href="{% url 'ganhadores' %}">🏆 Ganhadores</a></li>
     </ul>
     {% if not user.is_authenticated %}
     <a href="javascript:void(0);" id="btnLoginMenu" class="btn btn-primary w-100 mt-4 d-flex align-items-center justify-content-center">

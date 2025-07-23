@@ -1,6 +1,140 @@
 {% extends 'rifa/base.html' %}
 {% block title %}Meus Números{% endblock %}
 {% block content %}
-<h2>Meus Números Reservados</h2>
-<p>Confira aqui os números que você escolheu.</p>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 70vh; background: #f8f9fa;">
+  <div class="bg-white text-dark rounded-4 shadow p-4" style="max-width: 480px; width: 100%;">
+    <h3 class="mb-3 text-center"><span style="font-size:1.3em;">🔎</span> Buscar Pedidos</h3>
+    <p class="text-center text-muted mb-4" style="font-size: 1em;">Informe seu e-mail ou CPF para consultar informações sobre os seus pedidos.</p>
+    <form id="buscar-form" autocomplete="off">
+      <div class="mb-3">
+        <label for="inputBusca" class="form-label">Digite seu <b>telefone</b></label>
+        <input type="text" class="form-control" id="inputBusca" name="telefone" placeholder="(99) 99999-9999" required>
+      </div>
+      <div class="mb-3">
+        <label for="inputCPF" class="form-label">Digite seu <b>CPF</b></label>
+        <input type="text" class="form-control" id="inputCPF" name="cpf" placeholder="000.000.000-00">
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Buscar</button>
+    </form>
+    <div id="resultados" class="mt-4"></div>
+    <div id="spinner-loading" class="text-center mt-3" style="display:none;">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Buscando...</span>
+      </div>
+      <div class="text-muted mt-2">Buscando...</div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/inputmask@5.0.8/dist/inputmask.min.js"></script>
+<script>
+if (typeof Inputmask === 'undefined') {
+  var script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.8/inputmask.min.js';
+  document.head.appendChild(script);
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const inputBusca = document.getElementById('inputBusca');
+  if (inputBusca) {
+    Inputmask({ mask: '(99) 99999-9999', showMaskOnHover: false }).mask(inputBusca);
+    inputBusca.addEventListener('input', function() {
+      if (inputBusca.inputmask.unmaskedvalue().length !== 11) {
+        inputBusca.classList.remove('is-valid');
+        inputBusca.classList.add('is-invalid');
+      } else {
+        inputBusca.classList.remove('is-invalid');
+        inputBusca.classList.add('is-valid');
+      }
+    });
+  }
+
+  // Máscara para CPF se existir campo
+  const inputCPF = document.getElementById('inputCPF');
+  if (inputCPF) {
+    Inputmask({ mask: '999.999.999-99', showMaskOnHover: false }).mask(inputCPF);
+    inputCPF.addEventListener('input', function() {
+      if (inputCPF.inputmask.unmaskedvalue().length !== 11) {
+        inputCPF.classList.remove('is-valid');
+        inputCPF.classList.add('is-invalid');
+      } else {
+        inputCPF.classList.remove('is-invalid');
+        inputCPF.classList.add('is-valid');
+      }
+    });
+  }
+  document.getElementById('buscar-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const telefone = inputBusca.value.trim();
+    let resultados = document.getElementById('resultados');
+    resultados.innerHTML = '';
+    document.getElementById('spinner-loading').style.display = 'block';
+    if (telefone === '' || telefone.length < 15) {
+      resultados.innerHTML = '<div class="alert alert-danger text-center">Informe um telefone válido no formato (99) 99999-9999.</div>';
+      inputBusca.classList.add('is-invalid');
+      return;
+    }
+    fetch('/buscar-pedidos/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: `telefone=${encodeURIComponent(telefone)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('spinner-loading').style.display = 'none';
+      if (data.status === 'ok') {
+        const nums = data.numeros.map(n => `<span class='badge bg-primary me-1'>${n}</span>`).join(' ');
+        resultados.innerHTML = `<div class='alert alert-success text-center'>Pedidos encontrados para <b>${telefone}</b>!<br><span class='text-muted'>Números reservados:</span><br>${nums}</div>`;
+        inputBusca.classList.remove('is-invalid');
+        inputBusca.classList.add('is-valid');
+      } else if (data.status === 'notfound') {
+        resultados.innerHTML = `
+          <div class='alert alert-warning text-center' style='background: #fffbe6; border: 1px solid #ffe58f; color: #856404; border-radius: 12px;'>
+            <i class="fas fa-exclamation-circle fa-2x mb-2" style="color:#ffc107;"></i><br>
+            <span style="font-size:1.1em;"><b>Nenhum número reservado neste telefone.</b></span><br>
+            <span class="text-muted">Verifique se digitou corretamente ou tente outro telefone.</span>
+          </div>
+        `;
+        inputBusca.classList.remove('is-valid');
+        inputBusca.classList.add('is-invalid');
+      } else {
+        resultados.innerHTML = `<div class='alert alert-danger text-center'>Erro ao buscar pedidos.</div>`;
+        inputBusca.classList.remove('is-valid');
+        inputBusca.classList.add('is-invalid');
+      }
+    })
+    .catch(() => {
+      document.getElementById('spinner-loading').style.display = 'none';
+      resultados.innerHTML = `
+        <div class='alert alert-danger text-center' style='background: #ffeaea; border: 1px solid #ffb3b3; color: #a94442; border-radius: 12px;'>
+          <i class="fas fa-wifi-slash fa-2x mb-2" style="color:#ff4d4f;"></i><br>
+          <span style="font-size:1.1em;"><b>Não foi possível conectar ao servidor.</b></span><br>
+          <span class="text-muted">Por favor, verifique sua conexão ou tente novamente em instantes.</span>
+        </div>
+      `;
+      inputBusca.classList.remove('is-valid');
+      inputBusca.classList.add('is-invalid');
+    });
+  });
+
+  // Função para pegar o CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+});
+</script>
 {% endblock %}

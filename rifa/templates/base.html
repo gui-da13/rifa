@@ -59,11 +59,9 @@
     <ul>
       <li><a href="{% url 'home' %}">🏠 Início</a></li>
       <li><a href="{% url 'sorteios' %}">🎟️ Sorteios</a></li>
-      <li><a href="#">🔢 Meus números</a></li>
+      <li><a href="{% url 'meus_numeros' %}">🔢 Meus números</a></li>
       <li><a href="{% url 'cadastro' %}">📝 Cadastro</a></li>
-      <li><a href="#">🏆 Ganhadores</a></li>
-      <li><a href="#">📄 Termos de uso</a></li>
-      <li><a href="#">📧 Entrar em contato</a></li>
+      <li><a href="{% url 'ganhadores' %}">🏆 Ganhadores</a></li>
     </ul>
     {% if not user.is_authenticated %}
     <a href="javascript:void(0);" id="btnLoginMenu" class="btn btn-primary w-100 mt-4 d-flex align-items-center justify-content-center">

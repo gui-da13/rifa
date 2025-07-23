@@ -1,6 +1,53 @@
 {% extends 'rifa/base.html' %}
 {% block title %}Ganhadores{% endblock %}
 {% block content %}
-<h2>Lista de Ganhadores</h2>
-<p>Veja quem já ganhou!</p>
+<div class="container py-4">
+  <div class="bg-white rounded-4 shadow p-4 mb-4">
+    <h2 class="mb-3 text-success"><i class="fas fa-trophy"></i> Ganhadores das Rifas</h2>
+    <p class="text-muted mb-4">Confira os sorteios encerrados e seus ganhadores!</p>
+    <div class="row g-4">
+      {% for rifa in rifas_encerradas %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          {% if rifa.imagem %}
+            <img src="{{ rifa.imagem.url }}" class="card-img-top rounded-top-4" alt="{{ rifa.titulo }}" style="height: 160px; object-fit: cover;">
+          {% else %}
+            <img src="https://via.placeholder.com/350x160?text=Sem+Imagem" class="card-img-top rounded-top-4" alt="Sem imagem" style="height: 160px; object-fit: cover;">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title text-dark">{{ rifa.titulo }}</h5>
+            <p class="card-text text-muted mb-2">{{ rifa.descricao|truncatewords:15 }}</p>
+            <div class="mb-2">
+              <span class="badge bg-secondary">Encerrada em {{ rifa.data_encerramento|date:'d/m/Y H:i' }}</span>
+            </div>
+            <div class="mb-2">
+              <span class="badge bg-success">Prêmio: R$ {{ rifa.preco }}</span>
+            </div>
+            <div class="mb-2">
+              <span class="fw-bold text-primary">Ganhador:</span><br>
+              {% if rifa.ganhador_nome %}
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  {% if rifa.ganhador_foto %}
+                    <img src="{{ rifa.ganhador_foto.url }}" alt="Foto do ganhador" class="rounded-circle border" style="width:48px;height:48px;object-fit:cover;">
+                  {% else %}
+                    <img src="https://via.placeholder.com/48x48?text=Foto" alt="Sem foto" class="rounded-circle border" style="width:48px;height:48px;object-fit:cover;">
+                  {% endif %}
+                  <span class="text-success fw-bold">{{ rifa.ganhador_nome }}</span>
+                </div>
+                <span class="text-muted">Bilhete sorteado: <b>{{ rifa.ganhador_numero }}</b></span>
+              {% else %}
+                <span class="text-danger">Ainda não definido</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <div class="alert alert-warning text-center">Nenhuma rifa encerrada ainda.</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
 {% endblock %}

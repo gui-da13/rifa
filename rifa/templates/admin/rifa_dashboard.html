@@ -44,8 +44,10 @@
   </div>
 </div>
 
-{% json_script nomes_rifas "nomesRifas" %}
-{% json_script bilhetes_por_rifa "bilhetesPorRifa" %}
+<script>
+  var nomesRifas = {{ nomes_rifas|safe }};
+  var bilhetesPorRifa = {{ bilhetes_por_rifa|safe }};
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 var nomesRifas = JSON.parse(document.getElementById('nomesRifas').textContent);
