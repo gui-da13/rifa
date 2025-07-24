@@ -1,9 +1,25 @@
+
 from django.contrib import admin
 from .models import Rifa, Numero, NumeroRifa
 from .admin_numero import NumeroAdmin
 from django.utils.html import format_html
 import csv
 from django.http import HttpResponse
+from .models_profile import UserProfile
+
+# Admin para UserProfile
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'nome_social', 'cpf', 'telefone', 'cidade', 'uf')
+    search_fields = ('user__username', 'cpf', 'telefone', 'cidade', 'uf')
+
+from django.contrib import admin
+from .models import Rifa, Numero, NumeroRifa
+from .admin_numero import NumeroAdmin
+from django.utils.html import format_html
+import csv
+from django.http import HttpResponse
+from .models_profile import UserProfile
 
  # Removido registro duplicado para evitar AlreadyRegistered
 
@@ -20,44 +36,47 @@ class RifaAdmin(admin.ModelAdmin):
         return actions
 
     def sortear_ganhador(self, request, queryset):
-        if not request.user.is_superuser:
-            from django.contrib import messages
-            messages.error(request, 'Ação permitida apenas para administradores.')
-            return
+        from django.contrib import messages
         from .models import Numero
         from django.core.mail import send_mail
         import random
         for rifa in queryset:
-            if rifa.encerrada and not rifa.ganhador_nome:
-                bilhetes = Numero.objects.filter(rifa=rifa, status='pago')
-                if bilhetes.exists():
-                    sorteado = random.choice(list(bilhetes))
-                    user = sorteado.reservado_por
-                    rifa.ganhador_nome = user.get_full_name() or user.username if user else sorteado.comprador_nome
-                    rifa.ganhador_numero = sorteado.numero
-                    if hasattr(user, 'profile') and user.profile.foto:
-                        rifa.ganhador_foto = user.profile.foto
-                    rifa.save()
-                    # Enviar e-mail
-                    email = user.email if user else sorteado.comprador_email
-                    if email:
-                        from django.template.loader import render_to_string
-                        html_message = render_to_string('emails/ganhador_rifa.html', {
-                            'nome_ganhador': rifa.ganhador_nome,
-                            'titulo_rifa': rifa.titulo,
-                            'numero_bilhete': rifa.ganhador_numero,
-                            'valor_premio': rifa.preco,
-                        })
-                        send_mail(
-                            '🎉 Parabéns! Você venceu a rifa',
-                            '',
-                            'Rifa Online <noreply@rifa.com>',
-                            [email],
-                            fail_silently=True,
-                            html_message=html_message
-                        )
-        self.message_user(request, 'Ganhador sorteado e notificado por e-mail!')
-    sortear_ganhador.short_description = 'Sortear ganhador e enviar e-mail'
+            if rifa.encerrada:
+                messages.warning(request, f'Rifa "{rifa.titulo}" já está encerrada.')
+                continue
+            bilhetes = Numero.objects.filter(rifa=rifa, status='pago')
+            if not bilhetes.exists():
+                messages.warning(request, f'Nenhum bilhete pago para a rifa "{rifa.titulo}".')
+                continue
+            sorteado = random.choice(list(bilhetes))
+            user = sorteado.reservado_por if hasattr(sorteado, 'reservado_por') else None
+            rifa.ganhador_nome = user.get_full_name() or user.username if user else sorteado.comprador_nome
+            rifa.ganhador_numero = sorteado.numero
+            if hasattr(user, 'profile') and hasattr(user.profile, 'foto') and user.profile.foto:
+                rifa.ganhador_foto = user.profile.foto
+            rifa.encerrada = True
+            rifa.save()
+            # Enviar e-mail
+            email = user.email if user else sorteado.comprador_email
+            if email:
+                from django.template.loader import render_to_string
+                html_message = render_to_string('emails/ganhador_rifa.html', {
+                    'nome_ganhador': rifa.ganhador_nome,
+                    'titulo_rifa': rifa.titulo,
+                    'numero_bilhete': rifa.ganhador_numero,
+                    'valor_premio': rifa.preco,
+                })
+                send_mail(
+                    '🎉 Parabéns! Você venceu a rifa',
+                    '',
+                    'Rifa Online <noreply@rifa.com>',
+                    [email],
+                    fail_silently=True,
+                    html_message=html_message
+                )
+            messages.success(request, f'Ganhador sorteado para a rifa "{rifa.titulo}"!')
+        self.message_user(request, 'Processo de sorteio finalizado.')
+    sortear_ganhador.short_description = 'Sortear (encerra e escolhe ganhador)'
     list_filter = ('encerrada', 'data_encerramento')
     search_fields = ('titulo', 'descricao')
     fields = ('titulo', 'descricao', 'preco', 'imagem', 'encerrada', 'data_encerramento')

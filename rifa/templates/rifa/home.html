@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'rifa/base.html' %}
 {% load static %}
 
 {% block title %}Prêmios{% endblock %}
@@ -17,7 +17,7 @@
             <div class="card-body text-left">
               <h5 class="card-title fw-bold mb-1" style="font-size:1.35rem;">{{ rifa.titulo|upper }}</h5>
               <p class="card-text text-muted mb-2" style="font-size:1.08rem;">{{ rifa.descricao }}</p>
-              <span class="badge bg-dark mb-2 animated-flash" style="font-size:1.15rem;display:block;width:max-content;margin:0 auto;">Por apenas R$ {{ rifa.preco|floatformat:2 }} cada</span>
+              <span class="badge bg-dark mb-2 animated-flash" style="font-size:1.15rem;display:block;width:max-content;margin:0 auto;">Por apenas R$ {{ rifa.preco|floatformat:2 }}</span>
             </div>
           </div>
         </a>
@@ -30,7 +30,7 @@
             <div class="card-body py-2 px-3">
               <h6 class="fw-bold mb-1" style="font-size:1.08rem;">{{ rifa.titulo|upper }}</h6>
               <p class="card-text text-muted mb-1" style="font-size:0.98rem;">{{ rifa.descricao }}</p>
-              <span class="badge bg-dark mb-1 animated-flash" style="font-size:1rem;">Por apenas R$ {{ rifa.preco|floatformat:2 }} cada</span>
+              <span class="badge bg-dark mb-1 animated-flash" style="font-size:1rem;">Por apenas R$ {{ rifa.preco|floatformat:2 }}</span>
             </div>
           </div>
         </a>

@@ -1,14 +1,59 @@
-def meus_numeros(request):
-    return render(request, 'rifa/meus_numeros.html')
+from django.http import HttpResponseForbidden
+# View protegida para sortear rifa pelo painel do site
+@login_required
+def sortear_rifa(request, rifa_id):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden('Apenas o administrador pode sortear a rifa.')
+    rifa = get_object_or_404(Rifa, id=rifa_id)
+    if rifa.encerrada:
+        messages.warning(request, 'Esta rifa já está encerrada.')
+        return redirect('raffle-detail', raffle_id=rifa.id)
+    bilhetes = Numero.objects.filter(rifa=rifa, status='pago')
+    if not bilhetes.exists():
+        messages.warning(request, 'Nenhum bilhete pago para esta rifa.')
+        return redirect('raffle-detail', raffle_id=rifa.id)
+    import random
+    sorteado = random.choice(list(bilhetes))
+    user = getattr(sorteado, 'reservado_por', None)
+    rifa.ganhador_nome = user.get_full_name() if user and user.get_full_name() else (user.username if user else sorteado.comprador_nome)
+    rifa.ganhador_numero = sorteado.numero
+    if user and hasattr(user, 'profile') and hasattr(user.profile, 'foto') and user.profile.foto:
+        rifa.ganhador_foto = user.profile.foto
+    rifa.encerrada = True
+    rifa.save()
+    # Enviar e-mail (opcional)
+    email = user.email if user else sorteado.comprador_email
+    if email:
+        from django.template.loader import render_to_string
+        from django.core.mail import send_mail
+        html_message = render_to_string('emails/ganhador_rifa.html', {
+            'nome_ganhador': rifa.ganhador_nome,
+            'titulo_rifa': rifa.titulo,
+            'numero_bilhete': rifa.ganhador_numero,
+            'valor_premio': rifa.preco,
+        })
+        send_mail(
+            '🎉 Parabéns! Você venceu a rifa',
+            '',
+            'Rifa Online <noreply@rifa.com>',
+            [email],
+            fail_silently=True,
+            html_message=html_message
+        )
+    messages.success(request, f'Ganhador sorteado para a rifa "{rifa.titulo}"!')
+    return redirect('raffle-detail', raffle_id=rifa.id)
 # --- IMPORTS ---
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from .models import Rifa, Numero, NumeroRifa
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+
+def meus_numeros(request):
+    return render(request, 'rifa/meus_numeros.html')
 # --- VIEWS ---
 def meus_numeros(request):
     return render(request, 'rifa/meus_numeros.html')
@@ -40,14 +85,20 @@ def login_view(request):
     return render(request, 'rifa/login.html', {'form': form})
 
 def cadastro_view(request):
+    from .forms_user import CustomUserCreationForm
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            # Save extra fields to user model (first_name, email, etc.)
+            user.first_name = form.cleaned_data.get('nomeCompleto')
+            user.email = form.cleaned_data.get('email')
+            user.save()
+            # Optionally, save extra info to a profile model or another table
             login(request, user)
             return redirect('home')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'rifa/cadastro.html', {'form': form})
 
 @login_required

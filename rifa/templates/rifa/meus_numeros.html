@@ -4,16 +4,13 @@
 <div class="d-flex justify-content-center align-items-center" style="min-height: 70vh; background: #f8f9fa;">
   <div class="bg-white text-dark rounded-4 shadow p-4" style="max-width: 480px; width: 100%;">
     <h3 class="mb-3 text-center"><span style="font-size:1.3em;">🔎</span> Buscar Pedidos</h3>
-    <p class="text-center text-muted mb-4" style="font-size: 1em;">Informe seu e-mail ou CPF para consultar informações sobre os seus pedidos.</p>
+    <p class="text-center text-muted mb-4" style="font-size: 1em;">Informe seu telefone para consultar informações sobre os seus pedidos.</p>
     <form id="buscar-form" autocomplete="off">
       <div class="mb-3">
         <label for="inputBusca" class="form-label">Digite seu <b>telefone</b></label>
         <input type="text" class="form-control" id="inputBusca" name="telefone" placeholder="(99) 99999-9999" required>
       </div>
-      <div class="mb-3">
-        <label for="inputCPF" class="form-label">Digite seu <b>CPF</b></label>
-        <input type="text" class="form-control" id="inputCPF" name="cpf" placeholder="000.000.000-00">
-      </div>
+      <!-- CPF removido -->
       <button type="submit" class="btn btn-primary w-100">Buscar</button>
     </form>
     <div id="resultados" class="mt-4"></div>
@@ -49,20 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Máscara para CPF se existir campo
-  const inputCPF = document.getElementById('inputCPF');
-  if (inputCPF) {
-    Inputmask({ mask: '999.999.999-99', showMaskOnHover: false }).mask(inputCPF);
-    inputCPF.addEventListener('input', function() {
-      if (inputCPF.inputmask.unmaskedvalue().length !== 11) {
-        inputCPF.classList.remove('is-valid');
-        inputCPF.classList.add('is-invalid');
-      } else {
-        inputCPF.classList.remove('is-invalid');
-        inputCPF.classList.add('is-valid');
-      }
-    });
-  }
+  // CPF removido
   document.getElementById('buscar-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const telefone = inputBusca.value.trim();
