@@ -1,4 +1,12 @@
-from django.http import HttpResponseForbidden
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponseForbidden
+from django.views.decorators.csrf import csrf_exempt
+from .models import Rifa, Numero, NumeroRifa
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+
 # View protegida para sortear rifa pelo painel do site
 @login_required
 def sortear_rifa(request, rifa_id):
@@ -33,14 +41,14 @@ def sortear_rifa(request, rifa_id):
             'valor_premio': rifa.preco,
         })
         send_mail(
-            '🎉 Parabéns! Você venceu a rifa',
+            '🎉 Parabéns! Seu bilhete foi sorteado. Receba o seu prêmio.',
             '',
-            'Rifa Online <noreply@rifa.com>',
+            'Vipebook <noreply@rifa.com>',
             [email],
             fail_silently=True,
             html_message=html_message
         )
-    messages.success(request, f'Ganhador sorteado para a rifa "{rifa.titulo}"!')
+    messages.success(request, f'Ganhador sorteado "{rifa.titulo}"!')
     return redirect('raffle-detail', raffle_id=rifa.id)
 # --- IMPORTS ---
 from django.shortcuts import render, redirect, get_object_or_404
@@ -144,7 +152,6 @@ def buscar_numeros_por_telefone(request):
     return JsonResponse({'status': 'error'})
 from django.contrib import messages
 
-@login_required
 def raffle_detail(request, raffle_id):
     rifa = get_object_or_404(Rifa, id=raffle_id)
     qtde_list = ['10', '20', '50', '100', '200', '500']  # Sugestão de quantidades para compra

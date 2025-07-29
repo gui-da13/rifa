@@ -1,52 +1,27 @@
 {% extends 'rifa/base.html' %}
-{% load static %}
 
 {% block title %}Prêmios{% endblock %}
 
 {% block content %}
-<div class="container py-4" style="background-color: #f2f2f2; min-height: 100vh;">
-    <h2 class="mb-4"> Prêmios - Escolha sua sorte</h2>
-    <div class="d-flex flex-column align-items-center" style="width:100%;">
-      {% for rifa in rifas %}
-        {% if forloop.first %}
-        <a href="{% url 'raffle-detail' rifa.id %}" style="text-decoration:none;color:inherit;">
-          <div class="card mb-4 shadow-sm" style="max-width:650px; border-radius: 20px; margin:0 auto; cursor:pointer; transition:box-shadow 0.2s;">
-            {% if rifa.imagem %}
-            <img src="{{ rifa.imagem.url }}" alt="{{ rifa.titulo }}" class="mt-3 mb-2 rounded" style="width:100%;height:280px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-radius:20px 20px 0 0;">
-            {% endif %}
-            <div class="card-body text-left">
-              <h5 class="card-title fw-bold mb-1" style="font-size:1.35rem;">{{ rifa.titulo|upper }}</h5>
-              <p class="card-text text-muted mb-2" style="font-size:1.08rem;">{{ rifa.descricao }}</p>
-              <span class="badge bg-dark mb-2 animated-flash" style="font-size:1.15rem;display:block;width:max-content;margin:0 auto;">Por apenas R$ {{ rifa.preco|floatformat:2 }}</span>
-            </div>
+  <h2 class="fade-in" data-aos="fade-up">⚡ Prêmios</h2>
+  <div class="card-grid">
+    {% for rifa in rifas %}
+      <a href="{% url 'raffle-detail' rifa.id %}" style="text-decoration:none;color:inherit;">
+        <div class="card" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:1 }}00">
+          {% if rifa.imagem %}
+            <img src="{{ rifa.imagem.url }}" alt="{{ rifa.titulo }}">
+          {% endif %}
+          <div class="card-content">
+            <h3>{{ rifa.titulo|upper }}</h3>
+            <p>{{ rifa.descricao }}</p>
+            <span class="preco">Por apenas R$ {{ rifa.preco|floatformat:2 }}</span>
           </div>
-        </a>
-        {% else %}
-        <a href="{% url 'raffle-detail' rifa.id %}" style="text-decoration:none;color:inherit;">
-          <div class="card mb-3 shadow-sm d-flex flex-row align-items-center" style="max-width:500px; border-radius: 15px; margin:0 auto; cursor:pointer; transition:box-shadow 0.2s;">
-            {% if rifa.imagem %}
-            <img src="{{ rifa.imagem.url }}" alt="{{ rifa.titulo }}" class="rounded ms-2" style="width:80px;height:80px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-            {% endif %}
-            <div class="card-body py-2 px-3">
-              <h6 class="fw-bold mb-1" style="font-size:1.08rem;">{{ rifa.titulo|upper }}</h6>
-              <p class="card-text text-muted mb-1" style="font-size:0.98rem;">{{ rifa.descricao }}</p>
-              <span class="badge bg-dark mb-1 animated-flash" style="font-size:1rem;">Por apenas R$ {{ rifa.preco|floatformat:2 }}</span>
-            </div>
-          </div>
-        </a>
-        {% endif %}
-      {% empty %}
-        <p>Nenhum bilhete premiado cadastrado ainda.</p>
-      {% endfor %}
-    </div>
-    <style>
-      .animated-flash {
-        animation: flash 1s infinite alternate;
-      }
-      @keyframes flash {
-        0% { opacity: 1; }
-        100% { opacity: 0.3; }
-      }
-    </style>
-</div>
+        </div>
+      </a>
+    {% empty %}
+      <p>Nenhum prêmio cadastrado ainda.</p>
+    {% endfor %}
+  </div>
 {% endblock %}
+
+

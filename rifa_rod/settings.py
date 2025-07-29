@@ -1,3 +1,5 @@
+# Redireciona para a home após login
+LOGIN_REDIRECT_URL = '/'
 # Redireciona para a home após logout
 LOGOUT_REDIRECT_URL = '/'
 from pathlib import Path

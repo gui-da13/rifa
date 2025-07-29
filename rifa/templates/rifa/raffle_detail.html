@@ -1,265 +1,120 @@
-{% extends 'base.html' %}
+{% extends 'rifa/base.html' %}
 {% block title %}{{ rifa.titulo }} - Detalhes da Rifa{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-center align-items-center" style="min-height:90vh;background:#f5f5f7;">
-  <div class="bg-white p-0 rounded-4 shadow-lg" style="max-width:430px;width:100%;">
-    <div class="p-0 d-flex justify-content-center align-items-center" style="background:#fff;">
-      {% if rifa.imagem %}
-        <img src="{{ rifa.imagem.url }}" alt="{{ rifa.titulo }}" class="img-fluid rounded shadow" style="width:180px;height:180px;object-fit:cover;display:block;margin:24px auto 0 auto;">
-      {% endif %}
-    </div>
-    <div class="p-4">
-      <h2 class="mb-1 text-center fw-bold" style="font-size:1.5rem;">{{ rifa.titulo }}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh; background: linear-gradient(135deg, #e8eaf6, #f5f5f7);">
+  <div class="bg-white text-dark rounded-4 shadow p-4 animate__animated animate__fadeInUp" style="max-width: 480px; width: 100%;">
+
+    {% if rifa.imagem %}
+      <img src="{{ rifa.imagem.url }}" alt="{{ rifa.titulo }}" class="img-fluid rounded shadow mb-3 d-block mx-auto" style="width:180px; height:180px; object-fit:cover;">
+    {% endif %}
+
+    <h3 class="text-center fw-bold mb-2">{{ rifa.titulo }}
       {% if rifa.encerrada %}
         <span class="badge bg-danger ms-2">Encerrada</span>
       {% else %}
         <span class="badge bg-success ms-2">Ativa</span>
       {% endif %}
-    </h2>
-      <p class="text-muted text-center mb-2" style="font-size:15px;">{{ rifa.descricao }}</p>
-      <div class="d-flex justify-content-center align-items-center mb-2">
-        <span class="badge bg-dark fs-6 px-3 py-2" style="font-size:1.1rem;">Por apenas R$ {{ rifa.preco|floatformat:2 }} cada</span>
+    </h3>
+
+    <p class="text-muted text-center mb-3" style="font-size: 0.95rem;">{{ rifa.descricao }}</p>
+    <div class="text-center mb-3">
+      <span class="badge bg-dark px-3 py-2" style="font-size: 1rem;">R$ {{ rifa.preco|floatformat:2 }} por número</span>
+    </div>
+
+    {% if rifa.encerrada and rifa.data_encerramento %}
+      <div class="alert alert-warning text-center py-2 mb-3">Encerrada em: {{ rifa.data_encerramento|date:"d/m/Y H:i" }}</div>
+    {% endif %}
+
+    <h5 class="text-center fw-bold mb-2"><i class="fas fa-bolt text-warning me-1"></i> Cotas <small class="text-muted">Escolha sua sorte</small></h5>
+
+    <button class="btn btn-light text-dark fw-bold w-100 mb-3" onclick="abrirModalNumeros()">
+      <i class="fas fa-shopping-cart me-2"></i> Ver meus números
+    </button>
+
+    <p class="text-center text-muted mb-2" style="font-size: 14px;">Selecione a quantidade de números</p>
+
+    <div class="row g-2 mb-3">
+      {% for qtde in qtde_list %}
+      <div class="col-6 col-md-4">
+        <button class="btn btn-outline-secondary w-100 py-2" onclick="somarCotas({{ qtde }})">
+          +{{ qtde }}<br><small>Selecionar</small>
+          {% if qtde == '10' %}<span class="badge bg-success ms-1">Cota mínima</span>{% endif %}
+        </button>
       </div>
-      {% if rifa.encerrada and rifa.data_encerramento %}
-        <div class="alert alert-warning py-1 px-2 mt-2 mb-0 text-center">Encerrada em: {{ rifa.data_encerramento|date:"d/m/Y H:i" }}</div>
-      {% endif %}
+      {% endfor %}
+    </div>
 
-      <hr class="my-3">
-      <h4 class="mb-2 text-center fw-bold" style="font-size:1.1rem;"><i class="fas fa-bolt text-warning"></i> Cotas <small class="text-muted">Escolha sua sorte</small></h4>
+    <div class="d-flex justify-content-center align-items-center mb-2" style="gap: 8px;">
+      <button class="btn btn-outline-secondary btn-sm" id="btn-minus" type="button" style="width: 32px; height: 32px; font-size: 1.2rem;">−</button>
+      <input id="input-cotas" class="form-control text-center" aria-label="Quantidade de números" readonly style="width: 60px; font-size: 1.1rem;" value="10">
+      <button class="btn btn-outline-secondary btn-sm" id="btn-plus" type="button" style="width: 32px; height: 32px; font-size: 1.2rem;">+</button>
+    </div>
 
-      <button class="btn btn-light text-dark fw-bold w-100 mb-2" style="font-size:15px;box-shadow:0 1px 4px rgba(0,0,0,0.04);" onclick="abrirModalNumeros()">
-        <i class="fas fa-shopping-cart me-2"></i> Ver meus números
+    <div class="text-center mb-3" id="totalSelecionado" style="font-size: 14px; font-weight: bold; color: #198754;">
+      Total selecionado
+    </div>
+
+    {% if not rifa.encerrada %}
+      <button id="btnAdquirir" class="btn btn-success w-100 mb-3 py-2" onclick="abrirModalRifa()">
+        ✅ Adquirir Bilhete — R$ {{ rifa.preco|floatformat:2 }}
       </button>
-
-      <p class="text-center text-muted mb-2" style="font-size:14px;">Selecione a quantidade de números</p>
-      <div class="row g-2 mb-2">
-        {% for qtde in qtde_list %}
-        <div class="col-6 col-md-4">
-          <button class="btn btn-outline-secondary w-100 py-2" style="font-size:1rem;" onclick="somarCotas({{ qtde }})">
-            +{{ qtde }}<br><small>Selecionar</small>
-            {% if qtde == '10' %}<span class="badge bg-success ms-1">Cota mínima</span>{% endif %}
-          </button>
-        </div>
-        {% endfor %}
-      </div>
-      <div class="text-center mb-2" id="totalSelecionado" style="font-size:15px;font-weight:bold;color:#198754;"></div>
-
-      <div class="input-group justify-content-center mb-3" style="max-width:110px;margin:0 auto;">
-        <button class="btn btn-outline-secondary btn-sm px-2" style="min-width:24px;" onclick="ajustarQtd(-1)">−</button>
-<input id="quantidade" type="text" value="10" min="10" class="form-control form-control-sm text-center px-1" style="width:32px;" readonly>
-        <button class="btn btn-outline-secondary btn-sm px-2" style="min-width:24px;" onclick="ajustarQtd(1)">+</button>
-      </div>
-
-      {% if not rifa.encerrada %}
-        <button id="btnAdquirir" class="btn btn-success w-100 mb-3 py-2" style="font-size:1.1rem;" onclick="abrirModalRifa()">✅ Adquirir Bilhete — R$ {{ rifa.preco|floatformat:2 }}</button>
-        {% if user.is_superuser or user.username == request.user.username %}
-        <form method="post" action="{% url 'sortear_rifa' rifa.id %}" style="margin-bottom:10px;">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-warning w-100 mb-2 py-2" style="font-size:1.1rem;">
-            <i class="fas fa-random me-2"></i>Sortear e Encerrar Rifa
-          </button>
-        </form>
-        {% endif %}
-      {% else %}
-        <button class="btn btn-secondary w-100 mb-3 py-2" style="font-size:1.1rem;" disabled>Bilhete Indisponível</button>
+      {% if user.is_superuser or user.username == request.user.username %}
+      <form method="post" action="{% url 'sortear_rifa' rifa.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning w-100 mb-3 py-2">
+          <i class="fas fa-random me-2"></i>Sortear e Encerrar Rifa
+        </button>
+      </form>
       {% endif %}
-<!-- Modal Rifa -->
-<div class="modal fade" id="modalRifa" tabindex="-1" aria-labelledby="modalRifaLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content rounded-4 animate__animated animate__fadeIn">
-      <div class="modal-header border-0">
-        <h4 class="modal-title fw-bold" id="modalRifaLabel">{{ rifa.nome }}
-          {% if rifa.encerrada %}
-            <span class="badge bg-danger ms-2">Encerrada</span>
-          {% else %}
-            <span class="badge bg-success ms-2">Ativa</span>
-          {% endif %}
-        </h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+    {% else %}
+      <button class="btn btn-secondary w-100 mb-3 py-2" disabled>Bilhete Indisponível</button>
+    {% endif %}
+
+    <div class="alert alert-secondary text-center mb-2" style="font-size: 14px;">🎫 Números disponíveis</div>
+    <div style="max-height: 140px; overflow-y: auto;">
+      {% for numero in numeros_list %}
+      <div class="d-flex justify-content-between bg-light px-2 py-1 mb-1 rounded" style="font-size: 13px;">
+        <span><i class="fas fa-ticket-alt me-1"></i> {{ numero }}</span>
+        <span>R$ {{ rifa.valor }}</span>
+        <span class="badge bg-success">Disponível</span>
       </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-6 text-center">
-            {% if rifa.imagem %}
-              <img src="{{ rifa.imagem.url }}" alt="{{ rifa.nome }}" class="img-fluid rounded-4 mb-3" style="max-height:300px;object-fit:cover;">
-            {% else %}
-              <img src="https://via.placeholder.com/350x300?text=Sem+Imagem" alt="Sem imagem" class="img-fluid rounded-4 mb-3">
-            {% endif %}
-            <div class="fs-5 fw-bold text-success mb-2">Por apenas <span class="badge bg-dark">R$ {{ rifa.valor|floatformat:2 }}</span></div>
-            <div class="text-muted mb-2">{{ rifa.descricao }}</div>
-            {% if rifa.encerrada and rifa.data_encerramento %}
-              <div class="alert alert-warning py-1 px-2">Encerrada em: {{ rifa.data_encerramento|date:"d/m/Y H:i" }}</div>
-            {% endif %}
-            <div class="d-flex justify-content-center gap-2 mt-2">
-              <button class="btn btn-outline-info" onclick="compartilharRifa()"><i class="fas fa-share-alt"></i> Compartilhar</button>
-              <a href="/premios/" class="btn btn-outline-warning"><i class="fas fa-trophy"></i> Ver Prêmios</a>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <h5 class="mb-3"><i class="fas fa-bolt text-warning"></i> Cotas <small class="text-muted">Escolha sua sorte</small></h5>
-            <div class="row g-2 mb-3">
-              {% for qtde in qtde_list %}
-              <div class="col-6 col-md-4">
-                <button class="btn btn-outline-secondary w-100" onclick="selecionarCotas('{{ qtde }}')">
-                  +{{ qtde }}<br><small>Selecionar</small>
-                  {% if qtde == '5' %}<span class="badge bg-success ms-1">Mais popular</span>{% endif %}
-                </button>
-              </div>
-              {% endfor %}
-            </div>
-            <div class="input-group justify-content-center mb-3">
-              <button class="btn btn-outline-secondary" onclick="ajustarQtd(-1)">−</button>
-              <input id="quantidade" type="text" value="10" class="form-control text-center w-auto" readonly>
-              <button class="btn btn-outline-secondary" onclick="ajustarQtd(1)">+</button>
-            </div>
-            {% if not rifa.encerrada %}
-              <button class="btn btn-success w-100 mb-4">✅ Participar do sorteio — R$ {{ rifa.valor }}</button>
-            {% else %}
-              <button class="btn btn-secondary w-100 mb-4" disabled>Bilhete Indisponível</button>
-            {% endif %}
-          </div>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </div>
 
-      <div class="alert alert-secondary text-center mb-2" style="font-size:15px;">🎫 Números disponíveis</div>
-      <div style="max-height:140px;overflow-y:auto;">
-        {% for numero in numeros_list %}
-          <div class="d-flex justify-content-between bg-light px-2 py-1 mb-1 rounded" style="font-size:13px;">
-            <span><i class="fas fa-ticket-alt"></i> {{ numero }}</span>
-            <span>Vale R$ {{ rifa.valor }}</span>
-            <span class="badge bg-success">Disponível</span>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-  </div>
-</div>
-
-<!-- Modal para localizar números pelo telefone -->
-<div class="modal fade" id="modalNumeros" tabindex="-1" aria-labelledby="modalNumerosLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4">
-      <div class="modal-header border-0">
-        <h5 class="modal-title fw-bold" id="modalNumerosLabel"><i class="fas fa-shopping-cart me-2"></i> Localizar meus números</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-      </div>
-      <div class="modal-body">
-        <form id="formTelefone" onsubmit="localizarNumeros(event)">
-          <div class="mb-3">
-            <label for="telefoneBusca" class="form-label">Digite seu número de telefone:</label>
-            <input type="tel" class="form-control" id="telefoneBusca" placeholder="(99) 99999-9999" required>
-          </div>
-          <button type="submit" class="btn btn-success w-100">Buscar meus números</button>
-        </form>
-        <div id="resultadoNumeros" class="mt-3"></div>
-        <div id="spinner-numeros" class="text-center mt-3" style="display:none;">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Buscando...</span>
-          </div>
-          <div class="text-muted mt-2">Buscando...</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+{% include 'rifa/modal_abrir_rifa.html' %}
+{% include 'rifa/modal_buscar_numeros.html' %}
 
 <script>
-let totalCotas = 0;
-const valorUnitario = 0.76;
-function somarCotas(qtd) {
-  totalCotas += qtd;
-  if (totalCotas < 10) totalCotas = 10;
+function somarCotas(qtde) {
+  const input = document.getElementById('input-cotas');
+  input.value = parseInt(input.value) + qtde;
   atualizarTotal();
 }
 
-function ajustarQtd(delta) {
-  let input = document.getElementById("quantidade");
-  let atual = parseInt(input.value);
-  let novo = Math.max(10, atual + delta);
-  input.value = novo;
-  totalCotas = novo;
+document.getElementById('btn-plus').addEventListener('click', () => {
+  const input = document.getElementById('input-cotas');
+  input.value = parseInt(input.value) + 1;
   atualizarTotal();
-}
+});
 
-function selecionarCotas(qtd) {
-  let novo = Math.max(10, qtd);
-  document.getElementById("quantidade").value = novo;
-  totalCotas = novo;
-  atualizarTotal();
-}
+document.getElementById('btn-minus').addEventListener('click', () => {
+  const input = document.getElementById('input-cotas');
+  const valorAtual = parseInt(input.value);
+  if (valorAtual > 1) {
+    input.value = valorAtual - 1;
+    atualizarTotal();
+  }
+});
 
 function atualizarTotal() {
-  document.getElementById("totalSelecionado").innerText = `Total selecionado: ${totalCotas}`;
-  document.getElementById("quantidade").value = totalCotas;
-  let total = (totalCotas * valorUnitario).toFixed(2).replace('.',',');
-  document.getElementById("btnAdquirir").innerHTML = `✅ Adquirir Bilhete — R$ ${total}`;
-}
-
-function abrirModalRifa() {
-  var modal = new bootstrap.Modal(document.getElementById('modalRifa'));
-  modal.show();
-}
-
-function abrirModalNumeros() {
-  var modal = new bootstrap.Modal(document.getElementById('modalNumeros'));
-  modal.show();
-}
-
-function localizarNumeros(event) {
-  event.preventDefault();
-  var telefone = document.getElementById('telefoneBusca').value;
-  var resultadoDiv = document.getElementById('resultadoNumeros');
-  resultadoDiv.innerHTML = '';
-  document.getElementById('spinner-numeros').style.display = 'block';
-  fetch('/buscar-numeros/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-CSRFToken': getCookie('csrftoken')
-    },
-    body: 'telefone=' + encodeURIComponent(telefone)
-  })
-  .then(response => response.json())
-  .then(data => {
-    document.getElementById('spinner-numeros').style.display = 'none';
-    if (data.status === 'ok') {
-      var nums = data.numeros.join(', ');
-      resultadoDiv.innerHTML = `<div class='alert alert-info'>Números comprados para <b>${telefone}</b>: <span class='fw-bold'>${nums}</span></div>`;
-    } else if (data.status === 'notfound') {
-      resultadoDiv.innerHTML = '';
-      setTimeout(function() {
-        alert('gordinho barriga de bosta diz\nNenhum registro de compra foi encontrado');
-      }, 200);
-    } else {
-      resultadoDiv.innerHTML = '<div class="alert alert-danger">Erro ao buscar números. Tente novamente.</div>';
-    }
-  })
-  .catch(() => {
-    document.getElementById('spinner-numeros').style.display = 'none';
-    resultadoDiv.innerHTML = '<div class="alert alert-danger">Erro de conexão. Tente novamente.</div>';
-  });
-}
-
-// Função para pegar o CSRF token do cookie
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
+  const input = document.getElementById('input-cotas');
+  const totalSpan = document.getElementById('totalSelecionado');
+  const preco = parseFloat("{{ rifa.preco|floatformat:2 }}".replace(',', '.'));
+  const total = preco * parseInt(input.value);
+  totalSpan.innerText = `Total: R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 </script>
- 
 {% endblock %}
